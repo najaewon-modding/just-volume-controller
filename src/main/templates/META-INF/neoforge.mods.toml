@@ -26,11 +26,11 @@ Fine-tune every Minecraft sound from one simple volume desk.
     type="required" #mandatory
     versionRange="[${neo_version},)" #mandatory
     ordering="NONE"
-    side="BOTH"
+    side="CLIENT"
 
 [[dependencies.${mod_id}]]
     modId="minecraft"
     type="required"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
-    side="BOTH"
+    side="CLIENT"
