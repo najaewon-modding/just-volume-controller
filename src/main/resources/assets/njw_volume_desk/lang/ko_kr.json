@@ -1,0 +1,7 @@
+{
+  "screen.njw_volume_desk.config.title": "Volume Desk",
+  "screen.njw_volume_desk.config.search": "사운드 ID 검색...",
+  "screen.njw_volume_desk.config.sound_count": "Volume Desk - 사운드 %s개",
+  "screen.njw_volume_desk.config.reset_all": "모두 초기화",
+  "screen.njw_volume_desk.config.volume": "%s 음량"
+}

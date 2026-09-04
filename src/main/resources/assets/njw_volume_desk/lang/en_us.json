@@ -1,0 +1,7 @@
+{
+  "screen.njw_volume_desk.config.title": "Volume Desk",
+  "screen.njw_volume_desk.config.search": "Search sound IDs...",
+  "screen.njw_volume_desk.config.sound_count": "Volume Desk - %s sounds",
+  "screen.njw_volume_desk.config.reset_all": "Reset All",
+  "screen.njw_volume_desk.config.volume": "Volume for %s"
+}
