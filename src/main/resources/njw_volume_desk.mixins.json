@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "net.njw.volumedesk.mixin",
+  "client": [
+    "SoundEngineMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}
