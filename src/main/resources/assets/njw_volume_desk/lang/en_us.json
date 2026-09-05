@@ -1,7 +1,18 @@
 {
   "screen.njw_volume_desk.config.title": "Volume Desk",
-  "screen.njw_volume_desk.config.search": "Search sound IDs...",
+  "screen.njw_volume_desk.config.search": "Search sound names or IDs...",
   "screen.njw_volume_desk.config.sound_count": "Volume Desk - %s sounds",
   "screen.njw_volume_desk.config.reset_all": "Reset All",
-  "screen.njw_volume_desk.config.volume": "Volume for %s"
+  "screen.njw_volume_desk.config.volume": "Volume for %s",
+  "sound_tree.njw_volume_desk.namespace.minecraft": "Minecraft",
+  "sound_tree.njw_volume_desk.segment.ambient": "Ambient",
+  "sound_tree.njw_volume_desk.segment.block": "Blocks",
+  "sound_tree.njw_volume_desk.segment.entity": "Entities",
+  "sound_tree.njw_volume_desk.segment.event": "Events",
+  "sound_tree.njw_volume_desk.segment.item": "Items",
+  "sound_tree.njw_volume_desk.segment.music": "Music",
+  "sound_tree.njw_volume_desk.segment.music_disc": "Music Discs",
+  "sound_tree.njw_volume_desk.segment.particle": "Particles",
+  "sound_tree.njw_volume_desk.segment.ui": "User Interface",
+  "sound_tree.njw_volume_desk.segment.weather": "Weather"
 }

@@ -21,6 +21,7 @@ import net.minecraft.sounds.SoundSource;
 import net.njw.volumedesk.VolumeDesk;
 import net.njw.volumedesk.config.SoundVolumeConfig;
 import net.njw.volumedesk.sound.SoundCatalog;
+import net.njw.volumedesk.sound.SoundDisplayNames;
 import net.njw.volumedesk.sound.SoundTree;
 
 import java.util.ArrayList;
@@ -144,7 +145,7 @@ public final class VolumeDeskConfigScreen extends Screen {
 
     private final class SoundList extends ContainerObjectSelectionList<SoundEntry> {
         private static final int ROW_HEIGHT = 22;
-        private String search = "";
+        private List<String> searchTerms = List.of();
 
         private SoundList() {
             super(
@@ -162,7 +163,10 @@ public final class VolumeDeskConfigScreen extends Screen {
         }
 
         private void updateSearch(String value) {
-            this.search = value.trim().toLowerCase(Locale.ROOT);
+            String normalized = value.trim().toLowerCase(Locale.ROOT);
+            this.searchTerms = normalized.isEmpty()
+                    ? List.of()
+                    : List.of(normalized.split("\\s+"));
             this.rebuild(true);
         }
 
@@ -184,36 +188,70 @@ public final class VolumeDeskConfigScreen extends Screen {
             this.clearEntries();
 
             for (SoundTree.Node namespace : VolumeDeskConfigScreen.this.soundTree.namespaces()) {
-                this.appendNode(namespace, 0, namespace.segment() + ":");
+                String key = namespace.segment() + ":";
+                String searchPath = SoundDisplayNames.searchText(namespace, key);
+                this.appendNode(namespace, 0, key, searchPath, false);
             }
 
             this.refreshScrollAmount();
             this.setScrollAmount(resetScroll ? 0.0 : previousScroll);
         }
 
-        private void appendNode(SoundTree.Node node, int depth, String key) {
-            if (!this.search.isEmpty() && !this.matches(node)) {
+        private void appendNode(
+                SoundTree.Node node,
+                int depth,
+                String key,
+                String searchPath,
+                boolean ancestorMatches
+        ) {
+            boolean selfMatches = !this.searchTerms.isEmpty() && this.matchesSelf(key, searchPath);
+
+            if (!this.searchTerms.isEmpty()
+                    && !ancestorMatches
+                    && !selfMatches
+                    && !this.matchesDescendant(node, key, searchPath)) {
                 return;
             }
 
-            boolean expanded = !this.search.isEmpty() || VolumeDeskConfigScreen.this.expandedNodes.contains(key);
-            this.addEntry(new SoundEntry(node, depth, key, expanded, this.search.isEmpty()));
+            boolean expanded = !this.searchTerms.isEmpty() || VolumeDeskConfigScreen.this.expandedNodes.contains(key);
+            String label = SoundDisplayNames.label(node, key);
+            this.addEntry(new SoundEntry(node, depth, key, label, expanded, this.searchTerms.isEmpty()));
 
             if (expanded) {
                 for (SoundTree.Node child : node.children()) {
-                    String separator = key.endsWith(":") ? "" : ".";
-                    this.appendNode(child, depth + 1, key + separator + child.segment());
+                    String childKey = this.childKey(key, child);
+                    this.appendNode(
+                            child,
+                            depth + 1,
+                            childKey,
+                            searchPath + " " + SoundDisplayNames.searchText(child, childKey),
+                            ancestorMatches || selfMatches
+                    );
                 }
             }
         }
 
-        private boolean matches(SoundTree.Node node) {
-            if (node.soundId().isPresent()
-                    && node.soundId().get().toString().toLowerCase(Locale.ROOT).contains(this.search)) {
-                return true;
+        private boolean matchesDescendant(SoundTree.Node node, String key, String searchPath) {
+            for (SoundTree.Node child : node.children()) {
+                String childKey = this.childKey(key, child);
+                String childPath = searchPath + " " + SoundDisplayNames.searchText(child, childKey);
+
+                if (this.matchesSelf(childKey, childPath)
+                        || this.matchesDescendant(child, childKey, childPath)) {
+                    return true;
+                }
             }
 
-            return node.children().stream().anyMatch(this::matches);
+            return false;
+        }
+
+        private boolean matchesSelf(String key, String searchPath) {
+            String searchable = (key + " " + searchPath).toLowerCase(Locale.ROOT);
+            return this.searchTerms.stream().allMatch(searchable::contains);
+        }
+
+        private String childKey(String parentKey, SoundTree.Node child) {
+            return parentKey + (parentKey.endsWith(":") ? "" : ".") + child.segment();
         }
     }
 
@@ -225,13 +263,22 @@ public final class VolumeDeskConfigScreen extends Screen {
 
         private final SoundTree.Node node;
         private final int depth;
+        private final String localizedLabel;
         private final List<AbstractWidget> widgets = new ArrayList<>();
         private final Button toggleButton;
         private final NumericEditBox volumeBox;
 
-        private SoundEntry(SoundTree.Node node, int depth, String key, boolean expanded, boolean allowToggle) {
+        private SoundEntry(
+                SoundTree.Node node,
+                int depth,
+                String key,
+                String localizedLabel,
+                boolean expanded,
+                boolean allowToggle
+        ) {
             this.node = node;
             this.depth = depth;
+            this.localizedLabel = localizedLabel;
 
             if (!node.children().isEmpty() && allowToggle) {
                 this.toggleButton = Button.builder(
@@ -250,7 +297,7 @@ public final class VolumeDeskConfigScreen extends Screen {
                         TOGGLE_WIDTH,
                         Component.translatable(
                                 "screen.njw_volume_desk.config.volume",
-                                node.soundId().get().toString()
+                                localizedLabel
                         )
                 );
                 this.volumeBox.setMaxLength(3);
@@ -293,8 +340,8 @@ public final class VolumeDeskConfigScreen extends Screen {
 
             int labelX = branchX + TOGGLE_WIDTH + 4;
             String label = this.node.children().isEmpty()
-                    ? this.node.segment()
-                    : this.node.segment() + " (" + this.node.soundCount() + ")";
+                    ? this.localizedLabel
+                    : this.localizedLabel + " (" + this.node.soundCount() + ")";
             int volumeX = this.volumeBox == null
                     ? this.getContentRight()
                     : this.getContentRight() - VOLUME_WIDTH - 12;
