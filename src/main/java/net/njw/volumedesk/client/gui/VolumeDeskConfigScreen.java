@@ -213,11 +213,37 @@ public final class VolumeDeskConfigScreen extends Screen {
                 return;
             }
 
+            boolean visible = SoundDisplayNames.shouldDisplay(node, key);
+
+            if (!visible) {
+                for (SoundTree.Node child : node.children()) {
+                    String childKey = this.childKey(key, child);
+                    this.appendNode(
+                            child,
+                            depth,
+                            childKey,
+                            searchPath + " " + SoundDisplayNames.searchText(child, childKey),
+                            ancestorMatches || selfMatches
+                    );
+                }
+
+                return;
+            }
+
+            boolean hasVisibleChildren = this.hasVisibleDescendant(node, key);
             boolean expanded = !this.searchTerms.isEmpty() || VolumeDeskConfigScreen.this.expandedNodes.contains(key);
             String label = SoundDisplayNames.label(node, key);
-            this.addEntry(new SoundEntry(node, depth, key, label, expanded, this.searchTerms.isEmpty()));
+            this.addEntry(new SoundEntry(
+                    node,
+                    depth,
+                    key,
+                    label,
+                    hasVisibleChildren,
+                    expanded,
+                    this.searchTerms.isEmpty()
+            ));
 
-            if (expanded) {
+            if (expanded && hasVisibleChildren) {
                 for (SoundTree.Node child : node.children()) {
                     String childKey = this.childKey(key, child);
                     this.appendNode(
@@ -229,6 +255,19 @@ public final class VolumeDeskConfigScreen extends Screen {
                     );
                 }
             }
+        }
+
+        private boolean hasVisibleDescendant(SoundTree.Node node, String key) {
+            for (SoundTree.Node child : node.children()) {
+                String childKey = this.childKey(key, child);
+
+                if (SoundDisplayNames.shouldDisplay(child, childKey)
+                        || this.hasVisibleDescendant(child, childKey)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private boolean matchesDescendant(SoundTree.Node node, String key, String searchPath) {
@@ -264,6 +303,7 @@ public final class VolumeDeskConfigScreen extends Screen {
         private final SoundTree.Node node;
         private final int depth;
         private final String localizedLabel;
+        private final boolean hasVisibleChildren;
         private final List<AbstractWidget> widgets = new ArrayList<>();
         private final Button toggleButton;
         private final NumericEditBox volumeBox;
@@ -273,14 +313,16 @@ public final class VolumeDeskConfigScreen extends Screen {
                 int depth,
                 String key,
                 String localizedLabel,
+                boolean hasVisibleChildren,
                 boolean expanded,
                 boolean allowToggle
         ) {
             this.node = node;
             this.depth = depth;
             this.localizedLabel = localizedLabel;
+            this.hasVisibleChildren = hasVisibleChildren;
 
-            if (!node.children().isEmpty() && allowToggle) {
+            if (hasVisibleChildren && allowToggle) {
                 this.toggleButton = Button.builder(
                         Component.literal(expanded ? "-" : "+"),
                         button -> VolumeDeskConfigScreen.this.soundList.toggle(key)
@@ -339,7 +381,7 @@ public final class VolumeDeskConfigScreen extends Screen {
             }
 
             int labelX = branchX + TOGGLE_WIDTH + 4;
-            String label = this.node.children().isEmpty()
+            String label = !this.hasVisibleChildren
                     ? this.localizedLabel
                     : this.localizedLabel + " (" + this.node.soundCount() + ")";
             int volumeX = this.volumeBox == null
