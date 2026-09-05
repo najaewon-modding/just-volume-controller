@@ -6,6 +6,8 @@ import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public final class SoundDisplayNames {
@@ -54,18 +56,19 @@ public final class SoundDisplayNames {
 
         String[] segments = path.split("\\.");
 
-        if (segments.length == 2 && isContentType(segments[0])) {
-            String contentKey = segments[0] + "." + namespace + "." + segments[1];
+        String registeredLabel = registeredLabel(namespace, segments[0], node.segment());
 
-            if (I18n.exists(contentKey)) {
-                return I18n.get(contentKey);
-            }
+        if (registeredLabel != null) {
+            return registeredLabel;
         }
 
-        return translateOrFallback(
-                TRANSLATION_PREFIX + "segment." + node.segment(),
-                humanize(node.segment())
-        );
+        String segmentKey = TRANSLATION_PREFIX + "segment." + node.segment();
+
+        if (I18n.exists(segmentKey)) {
+            return I18n.get(segmentKey);
+        }
+
+        return compositeLabel(namespace, segments[0], node.segment());
     }
 
     private static String subtitle(Identifier soundId) {
@@ -87,6 +90,56 @@ public final class SoundDisplayNames {
 
     private static boolean isContentType(String segment) {
         return segment.equals("block") || segment.equals("entity") || segment.equals("item");
+    }
+
+    private static String registeredLabel(String namespace, String contentType, String contentId) {
+        if (isContentType(contentType)) {
+            return translatedContent(contentType, namespace, contentId);
+        }
+
+        if (contentType.equals("ambient") || contentType.equals("music")) {
+            return translatedContent("biome", namespace, contentId);
+        }
+
+        if (contentType.equals("music_disc")) {
+            return translatedContent("item", namespace, "music_disc_" + contentId);
+        }
+
+        if (contentType.equals("ui")) {
+            String blockLabel = translatedContent("block", namespace, contentId);
+            return blockLabel == null ? translatedContent("item", namespace, contentId) : blockLabel;
+        }
+
+        return null;
+    }
+
+    private static String translatedContent(String contentType, String namespace, String contentId) {
+        String key = contentType + "." + namespace + "." + contentId;
+        return I18n.exists(key) ? I18n.get(key) : null;
+    }
+
+    private static String compositeLabel(String namespace, String contentType, String segment) {
+        String[] words = segment.split("[_-]");
+
+        if (words.length == 1) {
+            return humanize(segment);
+        }
+
+        List<String> labels = new ArrayList<>(words.length);
+
+        for (String word : words) {
+            String wordKey = TRANSLATION_PREFIX + "segment." + word;
+
+            if (I18n.exists(wordKey)) {
+                labels.add(I18n.get(wordKey));
+                continue;
+            }
+
+            String registeredLabel = registeredLabel(namespace, contentType, word);
+            labels.add(registeredLabel == null ? humanize(word) : registeredLabel);
+        }
+
+        return String.join(" ", labels);
     }
 
     private static String translateOrFallback(String key, String fallback) {
