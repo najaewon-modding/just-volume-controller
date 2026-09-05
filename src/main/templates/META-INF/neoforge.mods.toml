@@ -12,7 +12,7 @@ displayName="${mod_name}" #mandatory
 authors="najaewon"
 
 description='''
-Fine-tune every Minecraft sound from one simple volume desk.
+Control every Minecraft sound independently from one simple screen.
 '''
 
 [[mixins]]

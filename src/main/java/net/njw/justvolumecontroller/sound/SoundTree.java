@@ -1,4 +1,4 @@
-package net.njw.volumedesk.sound;
+package net.njw.justvolumecontroller.sound;
 
 import net.minecraft.resources.Identifier;
 

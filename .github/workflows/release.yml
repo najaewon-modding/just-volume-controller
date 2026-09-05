@@ -47,7 +47,9 @@ jobs:
             tag="$(basename "$notes" .md)"
 
             if gh release view "$tag" >/dev/null 2>&1; then
-              gh release edit "$tag" --notes-file "$notes"
+              gh release edit "$tag" \
+                --title "Just Volume Controller ${tag#v}" \
+                --notes-file "$notes"
             fi
           done
 
@@ -57,11 +59,11 @@ jobs:
           RELEASE_TAG: ${{ steps.metadata.outputs.tag }}
           RELEASE_VERSION: ${{ steps.metadata.outputs.version }}
         run: |
-          artifact="build/libs/njw_volume_desk-${RELEASE_VERSION}.jar"
+          artifact="build/libs/njw_just_volume_controller-${RELEASE_VERSION}.jar"
           notes=".github/release-notes/${RELEASE_TAG}.md"
           test -f "$artifact"
           test -f "$notes"
           gh release create "$RELEASE_TAG" "$artifact" \
             --target "$GITHUB_SHA" \
-            --title "Volume Desk ${RELEASE_VERSION}" \
+            --title "Just Volume Controller ${RELEASE_VERSION}" \
             --notes-file "$notes"

@@ -1,4 +1,4 @@
-package net.njw.volumedesk.sound;
+package net.njw.justvolumecontroller.sound;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
@@ -9,7 +9,7 @@ import net.minecraft.resources.Identifier;
 import java.util.Arrays;
 
 public final class SoundDisplayNames {
-    private static final String TRANSLATION_PREFIX = "sound_tree.njw_volume_desk.";
+    private static final String TRANSLATION_PREFIX = "sound_tree.njw_just_volume_controller.";
 
     private SoundDisplayNames() {
     }

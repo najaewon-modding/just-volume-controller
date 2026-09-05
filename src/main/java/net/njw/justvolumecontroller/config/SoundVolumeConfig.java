@@ -1,4 +1,4 @@
-package net.njw.volumedesk.config;
+package net.njw.justvolumecontroller.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -54,7 +54,7 @@ public final class SoundVolumeConfig {
 
             changedVolumes = Map.copyOf(readVolumes(rootElement.getAsJsonObject()));
         } catch (IOException | JsonParseException | IllegalStateException exception) {
-            LOGGER.error("Failed to load Volume Desk sound volume config from {}", path, exception);
+            LOGGER.error("Failed to load Just Volume Controller sound volume config from {}", path, exception);
         }
     }
 
@@ -84,12 +84,12 @@ public final class SoundVolumeConfig {
             replaceFile(temporaryPath, path);
             return true;
         } catch (IOException exception) {
-            LOGGER.error("Failed to save Volume Desk sound volume config to {}", path, exception);
+            LOGGER.error("Failed to save Just Volume Controller sound volume config to {}", path, exception);
 
             try {
                 Files.deleteIfExists(temporaryPath);
             } catch (IOException cleanupException) {
-                LOGGER.warn("Failed to remove temporary Volume Desk config file {}", temporaryPath, cleanupException);
+                LOGGER.warn("Failed to remove temporary Just Volume Controller config file {}", temporaryPath, cleanupException);
             }
 
             return false;
@@ -152,7 +152,7 @@ public final class SoundVolumeConfig {
             Integer percent = readPercent(entry.getValue());
 
             if (soundId == null || percent == null || percent == DEFAULT_VOLUME_PERCENT) {
-                LOGGER.warn("Ignoring invalid or default Volume Desk setting: {}", entry.getKey());
+                LOGGER.warn("Ignoring invalid or default Just Volume Controller setting: {}", entry.getKey());
                 continue;
             }
 

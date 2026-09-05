@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "net.njw.volumedesk.mixin",
+  "package": "net.njw.justvolumecontroller.mixin",
   "client": [
     "SoundEngineMixin"
   ],

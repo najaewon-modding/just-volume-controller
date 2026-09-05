@@ -1,4 +1,4 @@
-package net.njw.volumedesk.client.gui;
+package net.njw.justvolumecontroller.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -18,11 +18,11 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
-import net.njw.volumedesk.VolumeDesk;
-import net.njw.volumedesk.config.SoundVolumeConfig;
-import net.njw.volumedesk.sound.SoundCatalog;
-import net.njw.volumedesk.sound.SoundDisplayNames;
-import net.njw.volumedesk.sound.SoundTree;
+import net.njw.justvolumecontroller.JustVolumeController;
+import net.njw.justvolumecontroller.config.SoundVolumeConfig;
+import net.njw.justvolumecontroller.sound.SoundCatalog;
+import net.njw.justvolumecontroller.sound.SoundDisplayNames;
+import net.njw.justvolumecontroller.sound.SoundTree;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public final class VolumeDeskConfigScreen extends Screen {
-    private static final Component TITLE = Component.translatable("screen.njw_volume_desk.config.title");
-    private static final Component SEARCH = Component.translatable("screen.njw_volume_desk.config.search")
+public final class JustVolumeControllerConfigScreen extends Screen {
+    private static final Component TITLE = Component.translatable("screen.njw_just_volume_controller.config.title");
+    private static final Component SEARCH = Component.translatable("screen.njw_just_volume_controller.config.search")
             .withStyle(EditBox.SEARCH_HINT_STYLE);
-    private static final Component RESET_ALL = Component.translatable("screen.njw_volume_desk.config.reset_all");
+    private static final Component RESET_ALL = Component.translatable("screen.njw_just_volume_controller.config.reset_all");
 
     private final Screen parent;
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this, 54, 33);
@@ -44,7 +44,7 @@ public final class VolumeDeskConfigScreen extends Screen {
     private EditBox searchBox;
     private boolean dirty;
 
-    public VolumeDeskConfigScreen(Screen parent) {
+    public JustVolumeControllerConfigScreen(Screen parent) {
         super(TITLE);
         this.parent = parent;
     }
@@ -61,7 +61,7 @@ public final class VolumeDeskConfigScreen extends Screen {
         LinearLayout header = this.layout.addToHeader(LinearLayout.vertical().spacing(4));
         header.addChild(
                 new StringWidget(
-                        Component.translatable("screen.njw_volume_desk.config.sound_count", this.soundTree.soundCount()),
+                        Component.translatable("screen.njw_just_volume_controller.config.sound_count", this.soundTree.soundCount()),
                         this.font
                 ),
                 LayoutSettings::alignHorizontallyCenter
@@ -111,7 +111,7 @@ public final class VolumeDeskConfigScreen extends Screen {
     @Override
     public void onClose() {
         if (this.dirty) {
-            VolumeDesk.soundVolumes().save();
+            JustVolumeController.soundVolumes().save();
             this.dirty = false;
         }
 
@@ -119,8 +119,8 @@ public final class VolumeDeskConfigScreen extends Screen {
     }
 
     private void resetAll() {
-        if (!VolumeDesk.soundVolumes().getChangedVolumes().isEmpty()) {
-            VolumeDesk.soundVolumes().resetAll();
+        if (!JustVolumeController.soundVolumes().getChangedVolumes().isEmpty()) {
+            JustVolumeController.soundVolumes().resetAll();
             this.dirty = true;
             this.soundList.refreshEntries();
             this.refreshActiveSounds();
@@ -129,7 +129,7 @@ public final class VolumeDeskConfigScreen extends Screen {
 
     private void updateVolume(SoundTree.Node node, int percent) {
         node.soundId().ifPresent(soundId -> {
-            SoundVolumeConfig config = VolumeDesk.soundVolumes();
+            SoundVolumeConfig config = JustVolumeController.soundVolumes();
 
             if (config.getVolumePercent(soundId) != percent) {
                 config.setVolumePercent(soundId, percent);
@@ -150,16 +150,16 @@ public final class VolumeDeskConfigScreen extends Screen {
         private SoundList() {
             super(
                     Minecraft.getInstance(),
-                    VolumeDeskConfigScreen.this.width,
-                    VolumeDeskConfigScreen.this.layout.getContentHeight(),
-                    VolumeDeskConfigScreen.this.layout.getHeaderHeight(),
+                    JustVolumeControllerConfigScreen.this.width,
+                    JustVolumeControllerConfigScreen.this.layout.getContentHeight(),
+                    JustVolumeControllerConfigScreen.this.layout.getHeaderHeight(),
                     ROW_HEIGHT
             );
         }
 
         @Override
         public int getRowWidth() {
-            return Math.min(440, VolumeDeskConfigScreen.this.width - 40);
+            return Math.min(440, JustVolumeControllerConfigScreen.this.width - 40);
         }
 
         private void updateSearch(String value) {
@@ -175,8 +175,8 @@ public final class VolumeDeskConfigScreen extends Screen {
         }
 
         private void toggle(String key) {
-            if (!VolumeDeskConfigScreen.this.expandedNodes.remove(key)) {
-                VolumeDeskConfigScreen.this.expandedNodes.add(key);
+            if (!JustVolumeControllerConfigScreen.this.expandedNodes.remove(key)) {
+                JustVolumeControllerConfigScreen.this.expandedNodes.add(key);
             }
 
             this.rebuild(false);
@@ -187,7 +187,7 @@ public final class VolumeDeskConfigScreen extends Screen {
             this.setFocused(null);
             this.clearEntries();
 
-            for (SoundTree.Node namespace : VolumeDeskConfigScreen.this.soundTree.namespaces()) {
+            for (SoundTree.Node namespace : JustVolumeControllerConfigScreen.this.soundTree.namespaces()) {
                 String key = namespace.segment() + ":";
                 String searchPath = SoundDisplayNames.searchText(namespace, key);
                 this.appendNode(namespace, 0, key, searchPath, false);
@@ -231,7 +231,7 @@ public final class VolumeDeskConfigScreen extends Screen {
             }
 
             boolean hasVisibleChildren = this.hasVisibleDescendant(node, key);
-            boolean expanded = !this.searchTerms.isEmpty() || VolumeDeskConfigScreen.this.expandedNodes.contains(key);
+            boolean expanded = !this.searchTerms.isEmpty() || JustVolumeControllerConfigScreen.this.expandedNodes.contains(key);
             String label = SoundDisplayNames.label(node, key);
             this.addEntry(new SoundEntry(
                     node,
@@ -325,7 +325,7 @@ public final class VolumeDeskConfigScreen extends Screen {
             if (hasVisibleChildren && allowToggle) {
                 this.toggleButton = Button.builder(
                         Component.literal(expanded ? "-" : "+"),
-                        button -> VolumeDeskConfigScreen.this.soundList.toggle(key)
+                        button -> JustVolumeControllerConfigScreen.this.soundList.toggle(key)
                 ).bounds(0, 0, TOGGLE_WIDTH, TOGGLE_WIDTH).build();
                 this.widgets.add(this.toggleButton);
             } else {
@@ -334,17 +334,17 @@ public final class VolumeDeskConfigScreen extends Screen {
 
             if (node.soundId().isPresent()) {
                 this.volumeBox = new NumericEditBox(
-                        VolumeDeskConfigScreen.this.font,
+                        JustVolumeControllerConfigScreen.this.font,
                         VOLUME_WIDTH,
                         TOGGLE_WIDTH,
                         Component.translatable(
-                                "screen.njw_volume_desk.config.volume",
+                                "screen.njw_just_volume_controller.config.volume",
                                 localizedLabel
                         )
                 );
                 this.volumeBox.setMaxLength(3);
                 this.volumeBox.setValue(Integer.toString(
-                        VolumeDesk.soundVolumes().getVolumePercent(node.soundId().get())
+                        JustVolumeController.soundVolumes().getVolumePercent(node.soundId().get())
                 ));
                 this.volumeBox.setResponder(this::updateVolume);
                 this.widgets.add(this.volumeBox);
@@ -390,16 +390,16 @@ public final class VolumeDeskConfigScreen extends Screen {
             int availableLabelWidth = Math.max(0, volumeX - labelX - 4);
             String displayedLabel = label;
 
-            if (VolumeDeskConfigScreen.this.font.width(label) > availableLabelWidth) {
-                int ellipsisWidth = VolumeDeskConfigScreen.this.font.width("...");
-                displayedLabel = VolumeDeskConfigScreen.this.font.plainSubstrByWidth(
+            if (JustVolumeControllerConfigScreen.this.font.width(label) > availableLabelWidth) {
+                int ellipsisWidth = JustVolumeControllerConfigScreen.this.font.width("...");
+                displayedLabel = JustVolumeControllerConfigScreen.this.font.plainSubstrByWidth(
                         label,
                         Math.max(0, availableLabelWidth - ellipsisWidth)
                 ) + "...";
             }
 
             graphics.text(
-                    VolumeDeskConfigScreen.this.font,
+                    JustVolumeControllerConfigScreen.this.font,
                     displayedLabel,
                     labelX,
                     y + 5,
@@ -411,7 +411,7 @@ public final class VolumeDeskConfigScreen extends Screen {
                 this.volumeBox.setY(y);
                 this.volumeBox.extractRenderState(graphics, mouseX, mouseY, partialTick);
                 graphics.text(
-                        VolumeDeskConfigScreen.this.font,
+                        JustVolumeControllerConfigScreen.this.font,
                         "%",
                         this.getContentRight() - 8,
                         y + 5,
@@ -439,7 +439,7 @@ public final class VolumeDeskConfigScreen extends Screen {
                 }
 
                 this.volumeBox.setTextColor(EditBox.DEFAULT_TEXT_COLOR);
-                VolumeDeskConfigScreen.this.updateVolume(this.node, percent);
+                JustVolumeControllerConfigScreen.this.updateVolume(this.node, percent);
             } catch (NumberFormatException exception) {
                 this.volumeBox.setTextColor(INVALID_TEXT_COLOR);
             }
